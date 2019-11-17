@@ -1,4 +1,5 @@
 // unicode.c 用ヘッダファイル
+//
 
 #ifndef __UNICODE_H
 #define __UNICODE_H
@@ -15,7 +16,7 @@ typedef uint16_t		WCHAR;	/* 16-bit unsigned integer */
 typedef uint32_t		DWORD;	/* 32-bit unsigned integer */
 typedef uint64_t		QWORD;	/* 64-bit unsigned integer */
 
-extern WCHAR uni2oem( DWORD uni );	/* UTF-16 encoded character to be converted */
+extern WCHAR uni2sjis( DWORD uni );	/* UTF-16 encoded character to be converted */
 
 #endif
 #endif

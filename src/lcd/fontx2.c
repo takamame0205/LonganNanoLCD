@@ -1,3 +1,6 @@
+// FONTX2ライブラリ Ver 1.0
+// 2019/11/17 by Kyoro
+
 #include "lcd/fontx2.h"
 
 // グローバル変数
@@ -7,7 +10,7 @@ FATFS fs;							// ファイルシステムオブジェクト
 FIL fontfile[FONTX2_FONTNUM];		// ファイルオブジェクト
 
 // プロトタイプ
-uint16_t get_font( uint8_t fontnum, uint16_t charcode );
+uint32_t get_font( uint8_t fontnum, uint16_t charcode );
 
 // ライブラリ関数
 void fontx2_init(	// FONTX2ライブラリを初期化する
@@ -20,7 +23,7 @@ void fontx2_init(	// FONTX2ライブラリを初期化する
 uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み込む
 	uint8_t fontnum,	//  フォントNo.
 	char* filename		//  フォントファイル名へのポインタ
-)
+)						//  戻り値：正常終了で0, エラーのときエラーコード
 {
 	FRESULT fr;
 	UINT *b;
@@ -57,8 +60,8 @@ uint8_t fontx2_read(	// 1文字分のフォントの読み込み
 )						//  戻り値：正常終了で0, エラーのときエラーコード
 {
 	FRESULT fr;
-	UINT *b;
-	uint16_t p;
+	UINT b;
+	uint32_t p;
 
 	// フォントデータへのポインタを得る
 	p = get_font( fontnum, charcode );
@@ -67,17 +70,21 @@ uint8_t fontx2_read(	// 1文字分のフォントの読み込み
 	}
 
 	// ファイルから読み出す
-	fr = f_lseek( &fontfile[fontnum], p );
-	fr = f_read( &fontfile[fontnum], buffer, font[fontnum].size, b );
-	if( fr || *b < font[fontnum].size ) {
-		return 2;	// フォントデータ読み込みエラー
+	if( !( fr = f_lseek( &fontfile[fontnum], p ) ) ) {
+		fr = f_read( &fontfile[fontnum], buffer, font[fontnum].size, &b );
+		if( fr || b < font[fontnum].size ) {
+			return 2;	// フォントデータ読み込みエラー
+		}
+		else {
+			return 0;	// 正常終了
+		}
 	}
-	else{
-		return 0;
+	else {
+		return 2;	// フォントデータ読み込みエラー
 	}
 }
 
-uint16_t get_font(		// FONTX2のフォントデータを取得する
+uint32_t get_font(		// FONTX2のフォントデータを取得する
 	uint8_t fontnum,	//  フォントNo.
     uint16_t charcode	//	文字コード(Shift JIS)
 )						//  戻り値：データへの相対ポインタ, エラーのとき0) 

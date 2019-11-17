@@ -1,3 +1,9 @@
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0
+// Original library developed by Sipeed.
+// 2019/11/17 modified by Kyoro
+//
+// このライブラリはsipeed社提供のLCD表示サンプルプログラムを一部改変して作成しました
+
 #ifndef __LCD_H
 #define __LCD_H		
 
@@ -7,20 +13,20 @@
 #include "gd32vf103_gpio.h"
 #include "lcd/fontx2.h"			// FONTX2ライブラリ
 
-#include "led.h"
-
 #define USE_HORIZONTAL	2		// 表示向き(0-1:縦、2-3:横)
 #define HAS_BLK_CNTL	0
 
-#define USE_FONTX2		1				// FONTX2の設定(0:不使用 1:2バイト文字のみ 2:1バイト文字も)
-// #define AFONT "FONTS/PAW16A.FNT"		// 1バイトフォントファイル名(ぱうフォント半角)
-// #define KFONT "FONTS/PAW16K.FNT"		// 2バイトフォントファイル名(ぱうフォント全角)
-#define AFONT "FONTS/JPNHN4X.FNT"		// 1バイトフォントファイル名(8x4フォント)
-#define KFONT "FONTS/MISAKI.FNT"		// 2バイトフォントファイル名(美咲フォント)
+// FONTX2 の設定
+#define USE_FONTX2		2				// FONTX2の設定(0:不使用 1:2バイト文字のみ 2:1バイト文字も)
+#define AFONT "FONTS/PAW16A.FNT"		// 1バイトフォントファイル名(ぱうフォント半角)
+#define KFONT "FONTS/PAW16K.FNT"		// 2バイトフォントファイル名(ぱうフォント全角)
+// #define AFONT "FONTS/JPNHN4X.FNT"	// 1バイトフォントファイル名(8x4フォント)
+// #define KFONT "FONTS/MISAKI.FNT"		// 2バイトフォントファイル名(美咲フォント)
 #define ASPACE		0					// FONTX2 1バイトフォントの横方向スペーシング
 #define KSPACE		0					// FONTX2 2バイトフォントの横方向スペーシング
 #define FONT_HEIGHT 17					// 自動改行時の1行の高さ
-// #define USE_UTF8STR					// UTF-8の文字列を扱う場合に定義(変換テーブルが必要なためプログラムサイズが大きくなります)
+#define USE_UTF8STR						// UTF-8の文字列を扱う場合に定義(変換テーブルが必要なためプログラムサイズが大きくなります)
+// #define FONTX2_USELED				// LEDをステータス表示に使用する場合に定義(赤：フォント読み込みエラー　緑：SDアクセス中)
 
 #if USE_HORIZONTAL==0||USE_HORIZONTAL==1
 #define LCD_W 80
@@ -34,8 +40,9 @@ typedef unsigned char u8;
 typedef unsigned int u16;
 typedef unsigned long u32;    			
 
-#define LED_ON 
-#define LED_OFF 
+#ifdef FONTX2_USELED					// LED制御ライブラリの読み込み
+#include "led.h"
+#endif
 
 #define SPI0_CFG 1  //hardware spi
 // #define SPI0_CFG 2  //hardware spi dma
@@ -43,7 +50,7 @@ typedef unsigned long u32;
 
 #define FRAME_SIZE  25600
 
-//-----------------OLED端口定义---------------- 
+//　OLED接続設定
 #if SPI0_CFG == 1
 #define OLED_SCLK_Clr() 
 #define OLED_SCLK_Set() 
@@ -99,22 +106,25 @@ void LCD_WR_DATA8(u8 dat);
 void LCD_WR_DATA(u16 dat);
 void LCD_WR_REG(u8 dat);
 void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);
-void Lcd_Init(void);
-void LCD_Clear(u16 Color);
-void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color);
-void LCD_DrawPoint(u16 x,u16 y,u16 color);
-void LCD_DrawPoint_big(u16 x,u16 y,u16 color);
-void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color);
-void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color);
-void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color);
-void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color);
-uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color);
-void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color);
+extern void LCD_Init(void);		// renamed
+extern void LCD_Clear(u16 Color);
+extern void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color);
+extern void LCD_DrawPoint(u16 x,u16 y,u16 color);
+extern void LCD_DrawPoint_big(u16 x,u16 y,u16 color);
+extern void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color);
+extern void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color);
+extern void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color);
+extern void LCD_DrawCircle(u16 x0,u16 y0,u8 r,u16 color);		// renamed
+extern uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color);
+extern void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color);
 u32 mypow(u8 m,u8 n);
-void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color);
-void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
-void LCD_ShowPicture(u16 x1,u16 y1,u16 x2,u16 y2);
-void LCD_ShowLogo(void);
+extern void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color);
+extern void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
+extern void LCD_ShowHex(u16 x,u16 y,u16 num,u8 len,u16 color);		// new funtcion
+extern void LCD_ShowPicture(u16 x1,u16 y1,u16 x2,u16 y2);
+extern void LCD_ShowLogo(void);
+#define Lcd_Init() LCD_Init()	// old name
+#define Draw_Circle(x0,y0,r,color) LCD_DrawCircle(x0,y0,r,color)	// old name
 
 // LCD_ShowChar 関数の戻り値
 #define SC_UNDEF	0	// 未定義文字
@@ -148,8 +158,4 @@ void LCD_ShowLogo(void);
 #define LBBLUE           0X2B12
 					  		 
 #endif  
-	 
-	 
-
-
 

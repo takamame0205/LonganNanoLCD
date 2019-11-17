@@ -1,8 +1,15 @@
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0
+// Original library developed by Sipeed.
+// 2019/11/17 modified by Kyoro
+//
+// このライブラリはsipeed社提供のLCD表示サンプルプログラムを一部改変して作成しました
+
 #include "lcd/lcd.h"
 #include "lcd/oledfont.h"
 #include "lcd/bmp.h"
 
 uint16_t BACK_COLOR;		// 背景色
+uint8_t ankfont_width = 8;	// 半角フォントの表示幅
 
 /******************************************************************************
       函数说明：LCD串行数据写入函数
@@ -192,7 +199,7 @@ void spi_config(void)
       入口数据：无
       返回值：  无
 ******************************************************************************/
-void Lcd_Init(void)
+void LCD_Init(void)
 {
 	rcu_periph_clock_enable(RCU_GPIOA);
 	rcu_periph_clock_enable(RCU_GPIOB);
@@ -335,15 +342,30 @@ void Lcd_Init(void)
 
 	LCD_WR_REG(0x29);	// Display On
 
+	ankfont_width = 8;
 	#if USE_FONTX2		// Initialize FONTX2
 	fontx2_init();
+	#ifdef FONTX2_USELED
+	led_init();
+	led_on( LED_G );
 	#endif
-	#if USE_FONTX2 == 1
-	fontx2_open( 0, KFONT )	;
-	#elif USE_FONTX2 == 2
-	fontx2_open( 0, KFONT );
-	fontx2_open( 0, AFONT );
+	if ( fontx2_open( 0, KFONT ) ) {
+		#ifdef FONTX2_USELED
+		led_on( LED_R );
+		#endif
+	}
+	#if USE_FONTX2 == 2
+	if ( fontx2_open( 1, AFONT ) ) {
+		#ifdef FONTX2_USELED
+		led_on( LED_R );
+		#endif
+	}
+	ankfont_width = font[1].fontwidth;
 	#endif 
+	#ifdef FONTX2_USELED
+	led_off( LED_G );
+	#endif
+	#endif
 }
 
 /******************************************************************************
@@ -502,7 +524,7 @@ void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color)
                 r       半径
       返回值：  无
 ******************************************************************************/
-void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color)
+void LCD_DrawCircle(u16 x0,u16 y0,u8 r,u16 color)
 {
 	int a,b;
 	// int di;
@@ -540,7 +562,7 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 	u16 x0=x;
 	uint8_t wb = 1;				// 横方向のバイト数
 	uint8_t fx2 = 0;			// FONTX2を使う場合、フォントNo.+1. 使わない場合 0.
-	uint8_t s = 0;				// スペーシング
+	uint8_t sp = 0;				// スペーシング
 	uint8_t font_width = 8;		// フォント表示幅
 	uint8_t font_height = 16;	// フォント表示高さ
 
@@ -548,16 +570,16 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 		#if USE_FONTX2 == 2
 			// 1バイト文字も使用する場合
 			font_height = font[1].fontheight;
-			font_width = font[1].fontwidth;
+			font_width = ankfont_width;
 			fx2 = 2;
-			s = ASPACE;
+			sp = ASPACE;
 		#endif
 		if( num > 0xff ) {
 			// 2バイト文字を使用する場合
 			font_height = font[0].fontheight;
 			font_width = font[0].fontwidth;
 			fx2 = 1;
-			s = KSPACE;
+			sp = KSPACE;
 		}
 	#else
 		if( num > 0xff ) {
@@ -568,10 +590,19 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 	wb = ( font_width + 7 ) / 8;
 	if( fx2 ) {
 		// FONTX2のフォント読み込み
-		if( !fontx2_read( fontdata, fx2 - 1, num ) ) {
-			led_on(LED_G);
+		#ifdef FONTX2_USELED
+			led_on( LED_G );
+		#endif
+		if( fontx2_read( fontdata, fx2 - 1, num ) ) {
+			#ifdef FONTX2_USELED
+				led_off( LED_G );
+				led_on( LED_R );
+			#endif
 			return 0;	// エラー(未定義文字)
 		}
+		#ifdef FONTX2_USELED
+			led_off( LED_G );
+		#endif
 	}
 	else {
 		num = num - ' ';	// 標準フォントのindex
@@ -663,8 +694,7 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 			}
 		}
 	}
-
-	return font_width + s;
+	return font_width + sp;
 }
 
 
@@ -701,18 +731,19 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 			else if( ( c & 0xfe ) == 0xfc ) {
 				uc = c & 0x01;	l = 5; 
 			}
-			while ( l-- > 0  &&  ( ( c = *( ++p ) & 0xc0 ) == 0x80 ) ) {
+			while ( l-- > 0  &&  ( ( ( c = *( ++p ) ) & 0xc0 ) == 0x80 ) ) {
 				uc = ( uc << 6 ) | ( c & 0x3f ) ;
 			}
-
-			// UTF8→SJIS 変換
-			uc = uni2oem( uc );
+			// UTF16→SJIS 変換
+			uc = uni2sjis( uc );
 		#else
 			uc = c;
 		#endif
 
 		// 文字表示
 		switch( s = LCD_ShowChar( x, y, uc, 0, color ) ) {
+			case SC_UNDEF:
+				break;
 			case SC_NL:
 				// 自動改行
 				y += FONT_HEIGHT;
@@ -735,9 +766,10 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示数字
-      入口数据：m底数，n指数
-      返回值：  无
+      関数説明：べき乗の計算
+      パラメータ：m   底
+                n    指数
+      戻り値：  m^n
 ******************************************************************************/
 u32 mypow(u8 m,u8 n)
 {
@@ -748,11 +780,11 @@ u32 mypow(u8 m,u8 n)
 
 
 /******************************************************************************
-      函数说明：显示数字
-      入口数据：x,y    起点坐标
-                num    要显示的数字
-                len    要显示的数字个数
-      返回值：  无
+      関数説明：整数値表示
+      パラメータ：x,y   左上の座標
+                num    表示数値
+                len    文字数
+      戻り値：  なし
 ******************************************************************************/
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 {         	
@@ -765,22 +797,47 @@ void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 		{
 			if(temp==0)
 			{
-				LCD_ShowChar(x+8*t,y,' ',0,color);
+				LCD_ShowChar(x+ankfont_width*t,y,' ',0,color);
 				continue;
 			}else enshow=1; 
 		 	 
 		}
-	 	LCD_ShowChar(x+8*t,y,temp+48,0,color); 
+	 	LCD_ShowChar(x+ankfont_width*t,y,temp+48,0,color); 
 	}
 } 
 
+/******************************************************************************
+      関数説明：16進表示
+      パラメータ：x,y   左上の座標
+                num    表示数値
+                len    文字数
+      戻り値：  なし
+******************************************************************************/
+void LCD_ShowHex(u16 x,u16 y,u16 num,u8 len,u16 color)
+{
+	uint8_t t, temp;
+	uint8_t enshow = 0;
+	for( t = 0; t < len; t++ ) {
+		temp = ( num / mypow( 16, len - t - 1 )) % 16;
+		if( enshow == 0 && t < ( len - 1 ) ) {
+			if( !temp ) {
+				LCD_ShowChar( x + ankfont_width * t, y, ' ', 0, color );
+				continue;
+			}
+			else {
+				enshow = 1; 
+			}
+		}
+	 	LCD_ShowChar( x + ankfont_width * t, y, temp > 9 ? temp + 55 : temp + 48, 0, color ); 
+	}
+}
 
 /******************************************************************************
-      函数说明：显示小数
-      入口数据：x,y    起点坐标
-                num    要显示的小数
-                len    要显示的数字个数
-      返回值：  无
+      関数説明：小数値表示
+      パラメータ：x,y   左上の座標
+                num    表示数値
+                len    文字数
+      戻り値：  なし
 ******************************************************************************/
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 {         	
@@ -793,11 +850,11 @@ void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 		temp=(num1/mypow(10,len-t-1))%10;
 		if(t==(len-2))
 		{
-			LCD_ShowChar(x+8*(len-2),y,'.',0,color);
+			LCD_ShowChar(x+ankfont_width*(len-2),y,'.',0,color);
 			t++;
 			len+=1;
 		}
-	 	LCD_ShowChar(x+8*t,y,temp+48,0,color);
+	 	LCD_ShowChar(x+ankfont_width*t,y,temp+48,0,color);
 	}
 }
 

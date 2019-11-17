@@ -1,8 +1,11 @@
+// FONTX2ライブラリ Ver 1.0
+// 2019/11/17 by Kyoro
+
 #ifndef __FONTX2_H
 #define __FONTX2_H
 
 #include <stdint.h>
-#include "fatfs/tf_card.h"
+#include "fatfs/tf_card.h"	// 利用にはFatFsライブラリが必要です
 
 // 記号定数
 #define FONTX2_ASCII 0

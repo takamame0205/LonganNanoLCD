@@ -1,5 +1,5 @@
 // Unicode to Shift JIS 変換関数
-// ChaN様作のFatFsに含まれる関数を改変して利用させていただいております
+// ChaN様作のFatFsのffunicode.cに含まれる関数を改変して利用させていただいております
 
 /*------------------------------------------------------------------------*/
 /* Unicode handling functions for FatFs R0.13c                            */
@@ -967,7 +967,7 @@ static const WCHAR uni2oem932[] = {	/* Unicode --> Shift_JIS pairs */
 /* DBCS fixed code page                                                   */
 /*------------------------------------------------------------------------*/
 
-WCHAR uni2oem (	/* Returns OEM code character, zero on error */
+WCHAR uni2sjis (	/* Returns OEM code character, zero on error */
 	DWORD	uni	/* UTF-16 encoded character to be converted */
 )
 {
