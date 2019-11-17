@@ -5,7 +5,9 @@ lcd.h/lcd.cなどの一部のファイルはSipeed社提供のものを一部改
 FatFsはChaN様提供のFATファイルシステムライブラリです。
 unicode.h/unicode.cにはUTF16をShift-JISに変換する関数が含まれますが、これはFatFsに含まれるffunicode.cを改変して開発しました。
 FONTX2ライブラリに含まれる一部の関数はChaN様のwebサイトに掲載されているものを引用、改変して開発しました。
-lcd.cに含まれるUTF8をUTF16に変換するアルゴリズムは、みいちゃん様(https://blog.goo.ne.jp/four_green_leaves/e/c7fc6541b0528722ff8de48620fb010b)開発のコードを引用、改変して開発しました。
+lcd.cに含まれるUTF8をUTF16に変換するアルゴリズムは、みいちゃん様開発のコードを引用、改変して開発しました。
+※ ChaN様のwebサイト： http://elm-chan.org/
+   みいちゃん様のブログ： https://blog.goo.ne.jp/four_green_leaves/e/c7fc6541b0528722ff8de48620fb010b
 
 既知の不具合：
 フォントファイルの後ろのほうに含まれる文字を表示しようとすると、f_lseek関数がFR_INT_ERRで失敗します。
