@@ -12,7 +12,7 @@ int main( void ) {
 
     LCD_ShowString( 0, 0, "FONTX2 Header" , WHITE );
     LCD_ShowString( 0, 20, "Height", WHITE);
-    LCD_ShowNum( 60, 20, font[1].fontheight, 2, CYAN );
+    LCD_ShowNum( 60, 20, font[0].fontheight, 2, CYAN );
 
 
 /*    LCD_ShowString( 0, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", CYAN );
