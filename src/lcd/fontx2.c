@@ -1,4 +1,4 @@
-// FONTX2ライブラリ Ver 1.0
+// FONTX2ライブラリ Ver 1.0beta
 // 2019/11/17 by Kyoro
 
 #include "lcd/fontx2.h"
@@ -66,21 +66,24 @@ uint8_t fontx2_read(	// 1文字分のフォントの読み込み
 	// フォントデータへのポインタを得る
 	p = get_font( fontnum, charcode );
 	if( !p ) {
-		return 1;	// 未定義の文字コード
+		return 0xff;	// 未定義の文字コード(255)
 	}
 
 	// ファイルから読み出す
 	if( !( fr = f_lseek( &fontfile[fontnum], p ) ) ) {
 		fr = f_read( &fontfile[fontnum], buffer, font[fontnum].size, &b );
-		if( fr || b < font[fontnum].size ) {
-			return 2;	// フォントデータ読み込みエラー
+		if( fr ) {
+			return 64 + fr;		// フォントデータリードエラー(65～83)
+		}
+		else if( b < font[fontnum].size ) {
+			return 128 + b;		// フォントデータリードエラー(128～254)
 		}
 		else {
 			return 0;	// 正常終了
 		}
 	}
 	else {
-		return 2;	// フォントデータ読み込みエラー
+		return 32 + fr;	// フォントデータシークエラー(33～51)
 	}
 }
 

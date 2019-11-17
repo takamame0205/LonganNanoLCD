@@ -1,4 +1,4 @@
-// FONTX2ライブラリ Ver 1.0
+// FONTX2ライブラリ Ver 1.0beta
 // 2019/11/17 by Kyoro
 
 #ifndef __FONTX2_H
@@ -10,7 +10,7 @@
 // 記号定数
 #define FONTX2_ASCII 0
 #define FONTX2_SJIS 1
-#define FONTX2_FONTNUM 2	// 同時に利用できるフォントの数
+#define FONTX2_FONTNUM 2	// 同時に利用できるフォントの数(1つにつき531バイトのワークエリアが必要)
 #define FONTX2_FONTSIZE 72	// フォントデータの最大サイズ(24x24→72バイト)
 
 // 構造体定義

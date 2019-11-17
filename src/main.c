@@ -16,19 +16,10 @@ int main( void ) {
     LCD_ShowString( 0, 0, "Fontname:" , WHITE );
     strcpy( str, font[0].fontname );
     str[8] = 0;
-    LCD_ShowString( 80, 0, str, CYAN );
-
-    LCD_ShowString( 0, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", CYAN );
-
-    LCD_ShowString( 0, 30, "あ", CYAN );
-
-/*
-    LCD_ShowString( 0, 30, "美咲フォントでも日本語文字列を表示できます", CYAN );
-*/
-    LCD_ShowChar( 0, 40, 0x8341, 0, YELLOW );
+    LCD_ShowString( ankfont_width * 10, 0, str, CYAN );
+    LCD_ShowString( 0, FONT_HEIGHT + 1 , "ABCDEabcde01234", CYAN );
+    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "ぱうフォントで日本語文字列", CYAN );
 
     while( 1 ) {
-
-
     }
 }

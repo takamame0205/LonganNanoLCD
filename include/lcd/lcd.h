@@ -1,4 +1,4 @@
-// LCD描画ライブラリ FONTX2対応版 Ver 1.0
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta
 // Original library developed by Sipeed.
 // 2019/11/17 modified by Kyoro
 //
@@ -18,15 +18,15 @@
 
 // FONTX2 の設定
 #define USE_FONTX2		2				// FONTX2の設定(0:不使用 1:2バイト文字のみ 2:1バイト文字も)
-#define AFONT "FONTS/PAW16A.FNT"		// 1バイトフォントファイル名(ぱうフォント半角)
-#define KFONT "FONTS/PAW16K.FNT"		// 2バイトフォントファイル名(ぱうフォント全角)
-// #define AFONT "FONTS/JPNHN4X.FNT"	// 1バイトフォントファイル名(8x4フォント)
-// #define KFONT "FONTS/MISAKI.FNT"		// 2バイトフォントファイル名(美咲フォント)
+#define AFONT "PAW16A.FNT"				// 1バイトフォントファイル名(ぱうフォント半角)
+#define KFONT "PAW16K.FNT"				// 2バイトフォントファイル名(ぱうフォント全角)
+// #define AFONT "JPNHN4X.FNT"			// 1バイトフォントファイル名(8x4フォント)
+// #define KFONT "MISAKI.FNT"			// 2バイトフォントファイル名(美咲フォント)
 #define ASPACE		0					// FONTX2 1バイトフォントの横方向スペーシング
 #define KSPACE		0					// FONTX2 2バイトフォントの横方向スペーシング
 #define FONT_HEIGHT 17					// 自動改行時の1行の高さ
 #define USE_UTF8STR						// UTF-8の文字列を扱う場合に定義(変換テーブルが必要なためプログラムサイズが大きくなります)
-// #define FONTX2_USELED				// LEDをステータス表示に使用する場合に定義(赤：フォント読み込みエラー　緑：SDアクセス中)
+#define FONTX2_USELED				// LEDをステータス表示に使用する場合に定義(赤：フォント読み込みエラー　緑：SDアクセス中)
 
 #if USE_HORIZONTAL==0||USE_HORIZONTAL==1
 #define LCD_W 80
@@ -99,6 +99,7 @@ typedef unsigned long u32;
 #define OLED_DATA 1	// LCDデータ
 
 extern uint16_t BACK_COLOR;			// 背景色
+extern uint8_t ankfont_width;		// 半角フォントの横幅
 extern unsigned char image[12800];
 
 void LCD_Writ_Bus(u8 dat);
@@ -123,8 +124,8 @@ extern void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
 extern void LCD_ShowHex(u16 x,u16 y,u16 num,u8 len,u16 color);		// new funtcion
 extern void LCD_ShowPicture(u16 x1,u16 y1,u16 x2,u16 y2);
 extern void LCD_ShowLogo(void);
-#define Lcd_Init() LCD_Init()	// old name
-#define Draw_Circle(x0,y0,r,color) LCD_DrawCircle(x0,y0,r,color)	// old name
+#define Lcd_Init() LCD_Init()	// old name for compatibility
+#define Draw_Circle(x0,y0,r,color) LCD_DrawCircle(x0,y0,r,color)	// old name for compatibility
 
 // LCD_ShowChar 関数の戻り値
 #define SC_UNDEF	0	// 未定義文字

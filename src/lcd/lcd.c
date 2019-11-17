@@ -1,4 +1,4 @@
-// LCD描画ライブラリ FONTX2対応版 Ver 1.0
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta
 // Original library developed by Sipeed.
 // 2019/11/17 modified by Kyoro
 //
@@ -593,11 +593,12 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 		#ifdef FONTX2_USELED
 			led_on( LED_G );
 		#endif
-		if( fontx2_read( fontdata, fx2 - 1, num ) ) {
+		if( i = fontx2_read( fontdata, fx2 - 1, num ) ) {
 			#ifdef FONTX2_USELED
 				led_off( LED_G );
 				led_on( LED_R );
 			#endif
+			// LCD_ShowNum( 120, 60, i, 4, RED );	// エラーコード表示(デバッグ用)
 			return 0;	// エラー(未定義文字)
 		}
 		#ifdef FONTX2_USELED
@@ -707,10 +708,10 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 {
 	uint8_t s, c;
-	uint8_t l;
-	uint16_t uc;
+	uint8_t l = 0;
+	uint16_t uc = 0;
 
-    while( c = *p ) {
+    while( ( c = *p ) ) {
 		#ifdef USE_UTF8STR
 			// UTF8→UTF16 変換
 			if( ( c & 0x80 ) == 0 ) {
@@ -731,7 +732,7 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 			else if( ( c & 0xfe ) == 0xfc ) {
 				uc = c & 0x01;	l = 5; 
 			}
-			while ( l-- > 0  &&  ( ( ( c = *( ++p ) ) & 0xc0 ) == 0x80 ) ) {
+			while( l-- > 0  &&  ( ( ( c = *( ++p ) ) & 0xc0 ) == 0x80 ) ) {
 				uc = ( uc << 6 ) | ( c & 0x3f ) ;
 			}
 			// UTF16→SJIS 変換
