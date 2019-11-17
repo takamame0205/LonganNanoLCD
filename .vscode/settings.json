@@ -1,0 +1,6 @@
+{
+	"files.associations": {
+		"fontx2.h": "c",
+		"systick.h": "c"
+	}
+}

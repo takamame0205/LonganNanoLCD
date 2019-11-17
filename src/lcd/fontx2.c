@@ -1,0 +1,110 @@
+#include "lcd/fontx2.h"
+
+// グローバル変数
+FH font[FONTX2_FONTNUM];			// FONTX2フォントヘッダ
+uint8_t fontdata[FONTX2_FONTSIZE];	// フォントパターン格納バッファ
+FATFS fs;							// ファイルシステムオブジェクト
+FIL fontfile[FONTX2_FONTNUM];		// ファイルオブジェクト
+
+// プロトタイプ
+uint16_t get_font( uint8_t fontnum, uint16_t charcode );
+
+// ライブラリ関数
+void fontx2_init(	// FONTX2ライブラリを初期化する
+	void
+)					//  戻り値：なし
+{
+    f_mount( &fs, "", 1 );
+}
+
+uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み込む
+	uint8_t fontnum,	//  フォントNo.
+	char* filename		//  フォントファイル名へのポインタ
+)
+{
+	FRESULT fr;
+	UINT *b;
+
+	// フォントファイルを開く
+    fr = f_open( &fontfile[fontnum], filename, FA_READ );	// フォントファイルを開く
+	if( fr ) {
+		return 1;	// ファイルオープンエラー
+	}
+    f_lseek( &fontfile[fontnum], 0 );	
+
+	// ヘッダを読み込む
+	fr = f_read( &fontfile[fontnum], &font[fontnum], 18, b );
+	if( fr || *b < 18 ) {
+		return 2;	// フォントヘッダ読み込みエラー
+	}
+	else {
+		if( font[fontnum].code != FONTX2_ASCII ) {
+			// コードブロックを読み込む
+			fr = f_read( &fontfile[fontnum], &font[fontnum].cb[0], font[fontnum].cbnum << 2, b );
+			if( fr ) {
+				return 3;	// コードブロック読み込みエラー
+			}
+		}
+    	font[fontnum].size = ( font[fontnum].fontwidth + 7 ) / 8 * font[fontnum].fontheight;
+		return 0;
+	}
+}
+
+uint8_t fontx2_read(	// 1文字分のフォントの読み込み
+	uint8_t* buffer,	//  データを読み込みバッファへのポインタ
+	uint8_t fontnum,	//  フォントNo.
+	uint16_t charcode	//  文字コード(ASCII/SJIS)
+)						//  戻り値：正常終了で0, エラーのときエラーコード
+{
+	FRESULT fr;
+	UINT *b;
+	uint16_t p;
+
+	// フォントデータへのポインタを得る
+	p = get_font( fontnum, charcode );
+	if( !p ) {
+		return 1;	// 未定義の文字コード
+	}
+
+	// ファイルから読み出す
+	fr = f_lseek( &fontfile[fontnum], p );
+	fr = f_read( &fontfile[fontnum], buffer, font[fontnum].size, b );
+	if( fr || *b < font[fontnum].size ) {
+		return 2;	// フォントデータ読み込みエラー
+	}
+	else{
+		return 0;
+	}
+}
+
+uint16_t get_font(		// FONTX2のフォントデータを取得する
+	uint8_t fontnum,	//  フォントNo.
+    uint16_t charcode	//	文字コード(Shift JIS)
+)						//  戻り値：データへの相対ポインタ, エラーのとき0) 
+{
+	// 以下はChaN様作のFONTX2用関数を改変して利用させていただきました
+    unsigned int nc, bc, sb, eb;
+	uint8_t *cblk;
+
+    if ( font[fontnum].code == 0 ) {	/* Single byte code font */
+        if ( charcode < 0x100 ) {
+			 return ( 17 + charcode * font[fontnum].size );
+		}
+    } else {				/* Double byte code font */
+        cblk = &font[fontnum].cb[0];
+		nc = 0;  			/* Code block table */
+        bc = font[fontnum].cbnum;
+        while ( bc-- ) {
+            sb = cblk[0] + cblk[1] * 0x100;  /* Get range of the code block */
+            eb = cblk[2] + cblk[3] * 0x100;
+            if ( charcode >= sb && charcode <= eb ) {  /* Check if in the code block */
+                nc += charcode - sb;             /* Number of codes from top of the block */
+                return ( 18 + 4 * font[fontnum].cbnum + nc * font[fontnum].size );
+            }
+            nc += eb - sb + 1;     /* Number of codes in the previous blocks */
+            cblk += 4;             /* Next code block */
+        }
+    }
+
+    return 0;   /* Invalid code */
+}
