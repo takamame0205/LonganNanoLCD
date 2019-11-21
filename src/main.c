@@ -14,11 +14,15 @@ int main( void ) {
     LCD_Clear( BLACK );		// lcdをクリアする
 
     LCD_ShowString( 0, 0, "Fontname:" , WHITE );
-    strcpy( str, font[0].fontname );
+    strncpy( str, font[0].fontname, 8 );
     str[8] = 0;
     LCD_ShowString( ankfont_width * 10, 0, str, CYAN );
     LCD_ShowString( 0, FONT_HEIGHT + 1 , "ABCDEabcde01234", CYAN );
-    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "ぱうフォントで日本語文字列", CYAN );
+    LCD_ShowChar( 0, 40,  0x81fc, 0, CYAN);
+    // LCD_ShowChar( 20, 20,  0x829f, 1, CYAN);
+
+
+    // LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "ぱう", CYAN );
 
     while( 1 ) {
     }

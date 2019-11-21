@@ -1,6 +1,6 @@
-// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta1
 // Original library developed by Sipeed.
-// 2019/11/17 modified by Kyoro
+// 2019/11/19 modified by Kyoro
 //
 // このライブラリはsipeed社提供のLCD表示サンプルプログラムを一部改変して作成しました
 
@@ -598,7 +598,7 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 				led_off( LED_G );
 				led_on( LED_R );
 			#endif
-			// LCD_ShowNum( 120, 60, i, 4, RED );	// エラーコード表示(デバッグ用)
+			LCD_ShowNum( 120, 60, i, 4, RED );	// エラーコード表示(デバッグ用)
 			return 0;	// エラー(未定義文字)
 		}
 		#ifdef FONTX2_USELED

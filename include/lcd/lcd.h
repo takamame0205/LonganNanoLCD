@@ -1,6 +1,6 @@
-// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta1
 // Original library developed by Sipeed.
-// 2019/11/17 modified by Kyoro
+// 2019/11/19 modified by Kyoro
 //
 // このライブラリはsipeed社提供のLCD表示サンプルプログラムを一部改変して作成しました
 
@@ -17,15 +17,15 @@
 #define HAS_BLK_CNTL	0
 
 // FONTX2 の設定
-#define USE_FONTX2		2				// FONTX2の設定(0:不使用 1:2バイト文字のみ 2:1バイト文字も)
-#define AFONT "PAW16A.FNT"				// 1バイトフォントファイル名(ぱうフォント半角)
-#define KFONT "PAW16K.FNT"				// 2バイトフォントファイル名(ぱうフォント全角)
-// #define AFONT "JPNHN4X.FNT"			// 1バイトフォントファイル名(8x4フォント)
-// #define KFONT "MISAKI.FNT"			// 2バイトフォントファイル名(美咲フォント)
-#define ASPACE		0					// FONTX2 1バイトフォントの横方向スペーシング
-#define KSPACE		0					// FONTX2 2バイトフォントの横方向スペーシング
-#define FONT_HEIGHT 17					// 自動改行時の1行の高さ
-#define USE_UTF8STR						// UTF-8の文字列を扱う場合に定義(変換テーブルが必要なためプログラムサイズが大きくなります)
+#define USE_FONTX2	2				// FONTX2の設定(0:不使用 1:2バイト文字のみ 2:1バイト文字も)
+#define AFONT "PAW16A.FNT"			// 1バイトフォントファイル名(ぱうフォント半角)
+#define KFONT "PAW16K.FNT"			// 2バイトフォントファイル名(ぱうフォント全角)
+// #define AFONT "JPNHN4X.FNT"		// 1バイトフォントファイル名(8x4フォント)
+// #define KFONT "MISAKI.FNT"		// 2バイトフォントファイル名(美咲フォント)
+#define ASPACE		0				// FONTX2 1バイトフォントの横方向スペーシング
+#define KSPACE		0				// FONTX2 2バイトフォントの横方向スペーシング
+#define FONT_HEIGHT 17				// 自動改行時の1行の高さ
+#define USE_UTF8STR					// UTF-8の文字列を扱う場合に定義(変換テーブルが必要なためプログラムサイズが大きくなります)
 #define FONTX2_USELED				// LEDをステータス表示に使用する場合に定義(赤：フォント読み込みエラー　緑：SDアクセス中)
 
 #if USE_HORIZONTAL==0||USE_HORIZONTAL==1
@@ -40,8 +40,11 @@ typedef unsigned char u8;
 typedef unsigned int u16;
 typedef unsigned long u32;    			
 
-#ifdef FONTX2_USELED					// LED制御ライブラリの読み込み
+#ifdef FONTX2_USELED	// LED制御ライブラリ
 #include "led.h"
+#endif
+#ifdef USE_UTF8STR		// Uicode-SJIS変換ライブラリ
+#include "unicode.h"
 #endif
 
 #define SPI0_CFG 1  //hardware spi

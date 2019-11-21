@@ -1,5 +1,5 @@
-// FONTX2ライブラリ Ver 1.0beta
-// 2019/11/17 by Kyoro
+// FONTX2ライブラリ Ver 1.0beta1
+// 2019/11/19 by Kyoro
 
 #include "lcd/fontx2.h"
 
@@ -8,6 +8,7 @@ FH font[FONTX2_FONTNUM];			// FONTX2フォントヘッダ
 uint8_t fontdata[FONTX2_FONTSIZE];	// フォントパターン格納バッファ
 FATFS fs;							// ファイルシステムオブジェクト
 FIL fontfile[FONTX2_FONTNUM];		// ファイルオブジェクト
+uint8_t sjisnum = 0;				// 開いている全角フォントの数
 
 // プロトタイプ
 uint32_t get_font( uint8_t fontnum, uint16_t charcode );
@@ -28,6 +29,11 @@ uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み�
 	FRESULT fr;
 	UINT *b;
 
+	// パラメータチェック
+	if( fontnum >= FONTX2_FONTNUM ) {
+		return 4;	// フォントNo.不正
+	}
+
 	// フォントファイルを開く
     fr = f_open( &fontfile[fontnum], filename, FA_READ );	// フォントファイルを開く
 	if( fr ) {
@@ -38,19 +44,32 @@ uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み�
 	// ヘッダを読み込む
 	fr = f_read( &fontfile[fontnum], &font[fontnum], 18, b );
 	if( fr || *b < 18 ) {
+		fontx2_close( fontnum );
 		return 2;	// フォントヘッダ読み込みエラー
 	}
 	else {
 		if( font[fontnum].code != FONTX2_ASCII ) {
 			// コードブロックを読み込む
-			fr = f_read( &fontfile[fontnum], &font[fontnum].cb[0], font[fontnum].cbnum << 2, b );
+			fr = f_read( &fontfile[fontnum], &font[fontnum].cb[0], font[fontnum].cbnum * 4, b );
 			if( fr ) {
+				fontx2_close( fontnum );
 				return 3;	// コードブロック読み込みエラー
 			}
 		}
     	font[fontnum].size = ( font[fontnum].fontwidth + 7 ) / 8 * font[fontnum].fontheight;
+		if( font[fontnum].size > FONTX2_FONTSIZE ) {
+			fontx2_close( fontnum );
+			return 6;	// 未対応のフォント(サイズが大きすぎる)
+		} 
 		return 0;
 	}
+}
+
+void fontx2_close(		// フォントファイルを閉じる
+	uint8_t fontnum		//  フォントNo.
+)						//  戻り値：なし
+{
+	f_close( &fontfile[fontnum] );
 }
 
 uint8_t fontx2_read(	// 1文字分のフォントの読み込み
@@ -63,10 +82,15 @@ uint8_t fontx2_read(	// 1文字分のフォントの読み込み
 	UINT b;
 	uint32_t p;
 
+	// パラメータチェック
+	if( fontnum >= FONTX2_FONTNUM ) {
+		return 4;	// フォントNo.不正(4)
+	}
+
 	// フォントデータへのポインタを得る
 	p = get_font( fontnum, charcode );
 	if( !p ) {
-		return 0xff;	// 未定義の文字コード(255)
+		return 5;	// 未定義の文字コード(5)
 	}
 
 	// ファイルから読み出す
@@ -76,7 +100,7 @@ uint8_t fontx2_read(	// 1文字分のフォントの読み込み
 			return 64 + fr;		// フォントデータリードエラー(65～83)
 		}
 		else if( b < font[fontnum].size ) {
-			return 128 + b;		// フォントデータリードエラー(128～254)
+			return 128 + b;		// フォントデータリードエラー(128～255)
 		}
 		else {
 			return 0;	// 正常終了
@@ -93,14 +117,15 @@ uint32_t get_font(		// FONTX2のフォントデータを取得する
 )						//  戻り値：データへの相対ポインタ, エラーのとき0) 
 {
 	// 以下はChaN様作のFONTX2用関数を改変して利用させていただきました
-    unsigned int nc, bc, sb, eb;
+    uint16_t nc, bc, sb, eb;
 	uint8_t *cblk;
 
     if ( font[fontnum].code == 0 ) {	/* Single byte code font */
         if ( charcode < 0x100 ) {
 			 return ( 17 + charcode * font[fontnum].size );
 		}
-    } else {				/* Double byte code font */
+    }
+	else {				/* Double byte code font */
         cblk = &font[fontnum].cb[0];
 		nc = 0;  			/* Code block table */
         bc = font[fontnum].cbnum;
