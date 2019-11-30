@@ -8,11 +8,13 @@
 #include "fatfs/tf_card.h"	// 利用にはFatFsライブラリが必要です
 
 // 記号定数
-#define FONTX2_ASCII	0
-#define FONTX2_SJIS		1
 #define FONTX2_FONTNUM	2	// 同時に利用できるフォントの数(1つにつき23バイトのワークエリアが必要)
-#define FONTX2_SJISFNT	1	// 同時に利用できる全角フォントの数(1つにつき追加で1024バイトのワークエリアが必要)
+#define FONTX2_SJISFNT	1	// 同時に利用できるSJISフォントの数(1つにつき追加で1024バイトのワークエリアが必要)
 #define FONTX2_FONTSIZE	72	// フォントデータの最大サイズ(24x24→72バイト)
+
+// 文字コード体系
+#define FONTX2_ASCII	0	// ASCIIコード
+#define FONTX2_SJIS		1	// Shift-JISコード
 
 // エラーコード
 #define FONTX2_OK			0		// 正常終了(0)

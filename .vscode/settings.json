@@ -1,6 +1,7 @@
 {
 	"files.associations": {
 		"fontx2.h": "c",
-		"systick.h": "c"
+		"systick.h": "c",
+		"tf_card.h": "c"
 	}
 }
