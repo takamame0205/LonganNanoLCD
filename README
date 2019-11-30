@@ -9,5 +9,3 @@ lcd.cに含まれるUTF8をUTF16に変換するアルゴリズムは、みいち
 ※ ChaN様のwebサイト： http://elm-chan.org/
    みいちゃん様のブログ： https://blog.goo.ne.jp/four_green_leaves/e/c7fc6541b0528722ff8de48620fb010b
 
-既知の不具合：
-フォントファイルの後ろのほうに含まれる文字を表示しようとすると、f_lseek関数がFR_INT_ERRで失敗します。
