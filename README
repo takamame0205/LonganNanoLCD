@@ -1,5 +1,8 @@
 Sipeed Longan Nano 用の、FONTX2対応LCD描画ライブラリを開発中です
 
+使用方法：
+microSDカードにFONTX2形式のフォントファイルを保存し、lcd.h 内でそのファイル名を指定してください。
+
 引用元などについて：
 lcd.h/lcd.cなどの一部のファイルはSipeed社提供のものを一部改変して開発しています。
 FatFsはChaN様提供のFATファイルシステムライブラリです。
