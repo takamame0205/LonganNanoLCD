@@ -111,7 +111,7 @@ void rcvr_spi_multi (
 	{
 		*buff = xchg_spi(0xff);
 		buff++;
-	} while (btr--);
+	} while (--btr);	// modified 2019-11-30
 
 }
 
