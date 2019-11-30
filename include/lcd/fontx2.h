@@ -1,5 +1,5 @@
-// FONTX2ライブラリ Ver 1.0beta1
-// 2019/11/19 by Kyoro
+// FONTX2ライブラリ Ver 1.0beta2
+// 2019/11/30 by Kyoro
 
 #ifndef __FONTX2_H
 #define __FONTX2_H
@@ -41,7 +41,7 @@ typedef struct {
 // 外部参照
 extern FH font[FONTX2_FONTNUM];				// FONTX2ヘッダ
 extern uint8_t fontdata[FONTX2_FONTSIZE];	// フォントパターン格納バッファ
-extern void fontx2_init( void );													// フォントファイルを開いて初期化する
+extern void fontx2_init( void );													// FONTX2ライブラリを初期化する
 extern uint8_t fontx2_open(	uint8_t fontnum, char* filename	);						// フォントファイルを開き、ヘッダを読み込む
 extern void fontx2_close( uint8_t fontnum );										// フォントファイルを閉じる
 extern uint8_t fontx2_read( uint8_t* buffer, uint8_t fontnum, uint16_t charcode );	// フォントデータを取得する
