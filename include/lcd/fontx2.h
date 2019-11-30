@@ -10,7 +10,7 @@
 // 記号定数
 #define FONTX2_ASCII	0
 #define FONTX2_SJIS		1
-#define FONTX2_FONTNUM	2	// 同時に利用できるフォントの数(1つにつき1043バイトのワークエリアが必要)
+#define FONTX2_FONTNUM	2	// 同時に利用できるフォントの数(1つにつき23バイトのワークエリアが必要)
 #define FONTX2_SJISFNT	1	// 同時に利用できる全角フォントの数(1つにつき追加で1024バイトのワークエリアが必要)
 #define FONTX2_FONTSIZE	72	// フォントデータの最大サイズ(24x24→72バイト)
 
@@ -35,7 +35,7 @@ typedef struct {
 	uint8_t code;			// 文字コード種別
 	uint8_t cbnum;			// コードブロック数
 	uint8_t size;			// 1文字当たりのデータサイズ
-	uint8_t cb[1024];		// コードブロック格納バッファ
+	uint8_t *cb;			// コードブロックテーブルへのポインタ
 } FH;
 
 // 外部参照

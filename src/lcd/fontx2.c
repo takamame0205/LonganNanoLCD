@@ -5,6 +5,7 @@
 
 // グローバル変数
 FH font[FONTX2_FONTNUM];			// FONTX2フォントヘッダ
+uint8_t cb[FONTX2_SJISFNT][1024];	// コードブロックテーブル
 uint8_t fontdata[FONTX2_FONTSIZE];	// フォントパターン格納バッファ
 FATFS fs;							// ファイルシステムオブジェクト
 FIL fontfile[FONTX2_FONTNUM];		// ファイルオブジェクト
@@ -50,7 +51,12 @@ uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み�
 	else {
 		if( font[fontnum].code != FONTX2_ASCII ) {
 			// コードブロックを読み込む
-			fr = f_read( &fontfile[fontnum], &font[fontnum].cb[0], font[fontnum].cbnum * 4, &b );
+			if( sjisnum >= FONTX2_SJISFNT ) {
+				fontx2_close( fontnum );
+				return 3;	// コードブロック読み込みエラー
+			}
+			font[fontnum].cb = &cb[sjisnum++];
+			fr = f_read( &fontfile[fontnum], font[fontnum].cb, font[fontnum].cbnum * 4, &b );
 			if( fr ) {
 				fontx2_close( fontnum );
 				return 3;	// コードブロック読み込みエラー
@@ -69,6 +75,9 @@ void fontx2_close(		// フォントファイルを閉じる
 	uint8_t fontnum		//  フォントNo.
 )						//  戻り値：なし
 {
+	if( font[fontnum].code == FONTX2_SJIS ) {
+		sjisnum--;
+	}
 	f_close( &fontfile[fontnum] );
 }
 
@@ -126,7 +135,7 @@ uint32_t get_font(		// FONTX2のフォントデータを取得する
 		}
     }
 	else {				/* Double byte code font */
-        cblk = &font[fontnum].cb[0];
+        cblk = font[fontnum].cb;
 		nc = 0;  			/* Code block table */
         bc = font[fontnum].cbnum;
         while ( bc-- ) {
