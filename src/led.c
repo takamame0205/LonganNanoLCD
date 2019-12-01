@@ -1,11 +1,11 @@
 // オンボードLED制御ライブラリ Ver 1.0
-// 2019/11/17 by Kyoro
+// (C) 2019/11/17 by Kyoro
 
 #include "led.h"
 
 void led_init( void )
 {
-	// LED制御のためGPIOを初期設定する
+	// GPIOクロック供給設定
 	rcu_periph_clock_enable( LED_GPIO_CLK_R );
 	rcu_periph_clock_enable( LED_GPIO_CLK_G );
 	// rcu_periph_clock_enable( LED_GPIO_CLK_B );
@@ -49,5 +49,4 @@ void led_off( uint8_t color )
 	if( color & LED_B ) {
 		gpio_bit_set( GPIO_PORT_LED_B, GPIO_PIN_LED_B );
 	}
-
 }

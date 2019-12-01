@@ -1,5 +1,5 @@
 // FONTX2ライブラリ Ver 1.0beta2
-// 2019/11/30 by Kyoro
+// (C) 2019/11/30 by Kyoro
 
 #include "lcd/fontx2.h"
 

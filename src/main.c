@@ -1,5 +1,7 @@
+// FONTX2対応LCDライブラリ サンプルプログラム
+// (C) 2019/11/30 by Kyoro
+
 #include "lcd/lcd.h"
-#include  "lcd/fontx2.h"
 #include "gd32vf103.h"
 #include "systick.h"
 #include <stdio.h>
@@ -18,7 +20,7 @@ int main( void ) {
     str[8] = 0;
     LCD_ShowString( ankfont_width * 10, 0, str, CYAN );
     LCD_ShowString( 0, FONT_HEIGHT + 1 , "ABCDEabcde012345", CYAN );
-    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "ぱうフォントで文字列表示", CYAN );
+    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "日本語文字列表示", CYAN );
 
     while( 1 ) {
     }
