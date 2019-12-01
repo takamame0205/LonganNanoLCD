@@ -1,5 +1,5 @@
-// FONTX2ライブラリ Ver 1.0beta2
-// 2019/11/30 by Kyoro
+// FONTX2ライブラリ Ver 1.0beta3
+// 2019/12/1 by Kyoro
 
 #ifndef __FONTX2_H
 #define __FONTX2_H

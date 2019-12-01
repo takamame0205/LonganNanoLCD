@@ -1,20 +1,21 @@
-// LCD描画ライブラリ FONTX2対応版 Ver 1.0beta1
+// LCD描画ライブラリ FONTX2対応版 Ver 1.0
 // Original library developed by Sipeed.
-// 2019/11/19 modified by Kyoro
+// 2019/12/1 modified by Kyoro
 //
 // このライブラリはsipeed社提供のLCD表示サンプルプログラムを一部改変して作成しました
 
 #include "lcd/lcd.h"
-#include "lcd/oledfont.h"
-#include "lcd/bmp.h"
+#include "lcd/oledfont.h"		// デフォルトのフォント
+#include "lcd/bmp.h"			// ロゴマーク画像
 
-uint16_t BACK_COLOR;		// 背景色
-uint8_t ankfont_width = 8;	// 半角フォントの表示幅
+uint16_t BACK_COLOR = BLACK;	// 背景色
+uint8_t ankfont_width = 8;		// 1バイトフォントの表示幅
+
 
 /******************************************************************************
-      函数说明：LCD串行数据写入函数
-      入口数据：dat  要写入的串行数据
-      返回值：  无
+      関数説明：   LCDCのSPIバスへデータを送信する
+      パラメータ： dat = 送信データ
+      戻り値：     なし
 ******************************************************************************/
 void LCD_Writ_Bus(u8 dat) 
 {
@@ -48,89 +49,89 @@ void LCD_Writ_Bus(u8 dat)
 
 
 /******************************************************************************
-      函数说明：LCD写入数据
-      入口数据：dat 写入的数据
-      返回值：  无
+      関数説明：   LCDCに8bitデータを送信
+      パラメータ： dat = 送信データ
+      戻り値：     なし
 ******************************************************************************/
 void LCD_WR_DATA8(u8 dat)
 {
-	OLED_DC_Set();//写数据
+	OLED_DC_Set();	// データ
 	LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：LCD写入数据
-      入口数据：dat 写入的数据
-      返回值：  无
+      関数説明：   LCDCに16bitデータを送信
+      パラメータ： dat = 送信データ
+      戻り値：     なし
 ******************************************************************************/
 void LCD_WR_DATA(u16 dat)
 {
-	OLED_DC_Set();//写数据
+	OLED_DC_Set();	// データ
 	LCD_Writ_Bus(dat>>8);
 	LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：LCD写入命令
-      入口数据：dat 写入的命令
-      返回值：  无
+      関数説明：   LCDCにコマンドを送信
+      パラメータ： dat = 送信コマンド
+      戻り値：     なし
 ******************************************************************************/
 void LCD_WR_REG(u8 dat)
 {
-	OLED_DC_Clr();//写命令
+	OLED_DC_Clr();	// コマンド
 	LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：设置起始和结束地址
-      入口数据：x1,x2 设置列的起始和结束地址
-                y1,y2 设置行的起始和结束地址
-      返回值：  无
+      関数説明：   描画の範囲を設定する
+      パラメータ： x1,x2 = 左端,右端のx座標
+                  y1,y2 = 上端,下端のy座標
+      戻り値：     なし
 ******************************************************************************/
 void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
 {
 	if(USE_HORIZONTAL==0)
 	{
-		LCD_WR_REG(0x2a);//列地址设置
+		LCD_WR_REG(0x2a);	// column address set
 		LCD_WR_DATA(x1+26);
 		LCD_WR_DATA(x2+26);
-		LCD_WR_REG(0x2b);//行地址设置
+		LCD_WR_REG(0x2b);	// row address set
 		LCD_WR_DATA(y1+1);
 		LCD_WR_DATA(y2+1);
-		LCD_WR_REG(0x2c);//储存器写
+		LCD_WR_REG(0x2c);	// memory write
 	}
 	else if(USE_HORIZONTAL==1)
 	{
-		LCD_WR_REG(0x2a);//列地址设置
+		LCD_WR_REG(0x2a);	// column address set
 		LCD_WR_DATA(x1+26);
 		LCD_WR_DATA(x2+26);
-		LCD_WR_REG(0x2b);//行地址设置
+		LCD_WR_REG(0x2b);	// row address set
 		LCD_WR_DATA(y1+1);
 		LCD_WR_DATA(y2+1);
-		LCD_WR_REG(0x2c);//储存器写
+		LCD_WR_REG(0x2c);	// memory write
 	}
 	else if(USE_HORIZONTAL==2)
 	{
-		LCD_WR_REG(0x2a);//列地址设置
+		LCD_WR_REG(0x2a);	// column address set
 		LCD_WR_DATA(x1+1);
 		LCD_WR_DATA(x2+1);
-		LCD_WR_REG(0x2b);//行地址设置
+		LCD_WR_REG(0x2b);	// row address set
 		LCD_WR_DATA(y1+26);
 		LCD_WR_DATA(y2+26);
-		LCD_WR_REG(0x2c);//储存器写
+		LCD_WR_REG(0x2c);	// memory write
 	}
 	else
 	{
-		LCD_WR_REG(0x2a);//列地址设置
+		LCD_WR_REG(0x2a);	// column address set
 		LCD_WR_DATA(x1+1);
 		LCD_WR_DATA(x2+1);
-		LCD_WR_REG(0x2b);//行地址设置
+		LCD_WR_REG(0x2b);	// row address set
 		LCD_WR_DATA(y1+26);
 		LCD_WR_DATA(y2+26);
-		LCD_WR_REG(0x2c);//储存器写
+		LCD_WR_REG(0x2c);	// memory write
 	}
 }
 
@@ -194,10 +195,11 @@ void spi_config(void)
 }
 #endif
 
+
 /******************************************************************************
-      函数说明：LCD初始化函数
-      入口数据：无
-      返回值：  无
+      関数説明：   LCD初期化(=Lcd_init)
+      パラメータ： なし
+      戻り値：     なし
 ******************************************************************************/
 void LCD_Init(void)
 {
@@ -349,13 +351,13 @@ void LCD_Init(void)
 	led_init();
 	led_on( LED_G );
 	#endif
-	if ( fontx2_open( 0, KFONT ) ) {
+	if ( fontx2_open( 0, LCD_KFONT ) ) {
 		#ifdef FONTX2_USELED
 		led_on( LED_R );
 		#endif
 	}
 	#if USE_FONTX2 == 2
-	if ( fontx2_open( 1, AFONT ) ) {
+	if ( fontx2_open( 1, LCD_AFONT ) ) {
 		#ifdef FONTX2_USELED
 		led_on( LED_R );
 		#endif
@@ -368,10 +370,11 @@ void LCD_Init(void)
 	#endif
 }
 
+
 /******************************************************************************
-      函数说明：LCD清屏函数
-      入口数据：无
-      返回值：  无
+      関数説明：   画面を指定色で塗りつぶす
+      パラメータ： Color = 描画色 
+      戻り値：     なし
 ******************************************************************************/
 void LCD_Clear(u16 Color)
 {
@@ -388,32 +391,33 @@ void LCD_Clear(u16 Color)
 
 
 /******************************************************************************
-      函数说明：LCD显示汉字
-      入口数据：x,y   起始坐标
-                index 汉字的序号
-                size  字号
-      返回值：  无
+      関数説明：   漢字を1文字表示する(oledfont.h 内定義のもの)
+      パラメータ： x,y = 表示開始(左上)座標
+	              index = 文字番号(oledfont.h 内のインデックス番号)
+				  size = 文字サイズ(16px or 32px)
+				  color = 表示色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color)	
 {  
 	u8 i,j;
 	u8 *temp,size1;
-	if(size==16){temp=Hzk16;}//选择字号
+	if(size==16){temp=Hzk16;}	// 文字サイズ選択
 	if(size==32){temp=Hzk32;}
-  LCD_Address_Set(x,y,x+size-1,y+size-1); //设置一个汉字的区域
-  size1=size*size/8;//一个汉字所占的字节
-	temp+=index*size1;//写入的起始位置
+  LCD_Address_Set(x,y,x+size-1,y+size-1); // 描画範囲指定
+  size1=size*size/8;	// フォントデータサイズ計算
+	temp+=index*size1;	// 文字選択
 	for(j=0;j<size1;j++)
 	{
 		for(i=0;i<8;i++)
 		{
-		 	if((*temp&(1<<i))!=0)//从数据的低位开始读
+		 	if((*temp&(1<<i))!=0)	// データの下位ビットから読み取る
 			{
-				LCD_WR_DATA(color);//点亮
+				LCD_WR_DATA(color); // pset
 			}
 			else
 			{
-				LCD_WR_DATA(BACK_COLOR);//不点亮
+				LCD_WR_DATA(BACK_COLOR);	// preset
 			}
 		}
 		temp++;
@@ -422,21 +426,23 @@ void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color)
 
 
 /******************************************************************************
-      函数说明：LCD显示汉字
-      入口数据：x,y   起始坐标
-      返回值：  无
+      関数説明：   点を描画する
+      パラメータ： x,y = 描画座標
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_DrawPoint(u16 x,u16 y,u16 color)
 {
-	LCD_Address_Set(x,y,x,y);//设置光标位置 
+	LCD_Address_Set(x,y,x,y); // 描画範囲指定
 	LCD_WR_DATA(color);
 } 
 
 
 /******************************************************************************
-      函数说明：LCD画一个大的点
-      入口数据：x,y   起始坐标
-      返回值：  无
+      関数説明：   大きな点を描画する(実際には3x3の矩形を描画する)
+      パラメータ： x,y = 描画座標
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_DrawPoint_big(u16 x,u16 y,u16 color)
 {
@@ -445,48 +451,50 @@ void LCD_DrawPoint_big(u16 x,u16 y,u16 color)
 
 
 /******************************************************************************
-      函数说明：在指定区域填充颜色
-      入口数据：xsta,ysta   起始坐标
-                xend,yend   终止坐标
-      返回值：  无
+      関数説明：   矩形領域を塗りつぶす
+      パラメータ： xsta,ysta = 左上座標
+				  xend,yend = 右下座標
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color)
 {          
 	u16 i,j; 
-	LCD_Address_Set(xsta,ysta,xend,yend);      //设置光标位置 
+	LCD_Address_Set(xsta,ysta,xend,yend); // 描画範囲指定 
 	for(i=ysta;i<=yend;i++)
 	{													   	 	
-		for(j=xsta;j<=xend;j++)LCD_WR_DATA(color);//设置光标位置 	    
+		for(j=xsta;j<=xend;j++)LCD_WR_DATA(color);
 	} 					  	    
 }
 
 
 /******************************************************************************
-      函数说明：画线
-      入口数据：x1,y1   起始坐标
-                x2,y2   终止坐标
-      返回值：  无
+      関数説明：   直線を描画する
+      パラメータ： x1,y1 = 始点座標
+				  x2,y2 = 終点座標
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color)
 {
 	u16 t; 
 	int xerr=0,yerr=0,delta_x,delta_y,distance;
 	int incx,incy,uRow,uCol;
-	delta_x=x2-x1; //计算坐标增量 
+	delta_x=x2-x1;	// 座標増分の計算
 	delta_y=y2-y1;
-	uRow=x1;//画线起点坐标
+	uRow=x1;		// 描画の開始点の座標
 	uCol=y1;
-	if(delta_x>0)incx=1; //设置单步方向 
-	else if (delta_x==0)incx=0;//垂直线 
+	if(delta_x>0)incx=1; // 方向指定
+	else if (delta_x==0)incx=0;	// 垂直線
 	else {incx=-1;delta_x=-delta_x;}
 	if(delta_y>0)incy=1;
-	else if (delta_y==0)incy=0;//水平线 
+	else if (delta_y==0)incy=0;	// 水平線
 	else {incy=-1;delta_y=-delta_x;}
-	if(delta_x>delta_y)distance=delta_x; //选取基本增量坐标轴 
+	if(delta_x>delta_y)distance=delta_x;	// 基本となる描画軸を指定
 	else distance=delta_y;
 	for(t=0;t<distance+1;t++)
 	{
-		LCD_DrawPoint(uRow,uCol,color);//画点
+		LCD_DrawPoint(uRow,uCol,color);		// pset
 		xerr+=delta_x;
 		yerr+=delta_y;
 		if(xerr>distance)
@@ -504,10 +512,11 @@ void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color)
 
 
 /******************************************************************************
-      函数说明：画矩形
-      入口数据：x1,y1   起始坐标
-                x2,y2   终止坐标
-      返回值：  无
+      関数説明：   矩形を描画する
+      パラメータ： x1,y1 = 始点座標
+				  x2,y2 = 終点座標
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color)
 {
@@ -519,10 +528,11 @@ void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color)
 
 
 /******************************************************************************
-      函数说明：画圆
-      入口数据：x0,y0   圆心坐标
-                r       半径
-      返回值：  无
+      関数説明：   円を描画する(=Draw_Circle)
+      パラメータ： x0,y0 = 中心座標
+				  r = 半径
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_DrawCircle(u16 x0,u16 y0,u8 r,u16 color)
 {
@@ -540,7 +550,7 @@ void LCD_DrawCircle(u16 x0,u16 y0,u8 r,u16 color)
 		LCD_DrawPoint(x0+a,y0+b,color);             //6 
 		LCD_DrawPoint(x0-b,y0+a,color);             //7
 		a++;
-		if((a*a+b*b)>(r*r))//判断要画的点是否过远
+		if((a*a+b*b)>(r*r))	// 描画点が遠すぎるかどうか判断
 		{
 			b--;
 		}
@@ -549,11 +559,17 @@ void LCD_DrawCircle(u16 x0,u16 y0,u8 r,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示字符
-      入口数据：x,y    起点坐标
-                num    文字コード(ASCII および Shift-JIS)
-                mode   1叠加方式  0非叠加方式
-      返回值：  表示された文字の横幅(スペーシングを含む)
+      関数説明：   1文字表示する
+      パラメータ： x,y = 表示開始(左上)座標
+                  num = 文字コード(ASCII および Shift-JIS)
+                  mode = 描画モード(文字背景を背景色で塗りつぶすかどうか)
+				    (0 → 塗りつぶす, 1 → 塗りつぶさない)
+				  color = 描画色
+      戻り値：	   表示エラーのとき → エラーコード 
+	  			    0 → 未定義文字
+	  			    254 → 右端がはみ出すため改行が必要
+				    255 → 表示範囲外(改行しても表示できない場合)
+	  			  正常終了時 → 表示された文字の横幅(スペーシングを含む)
 ******************************************************************************/
 uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 {
@@ -568,18 +584,18 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 
 	#if USE_FONTX2
 		#if USE_FONTX2 == 2
-			// 1バイト文字も使用する場合
+			// 1バイト文字もFONTX2を使用する場合
 			font_height = font[1].fontheight;
 			font_width = ankfont_width;
 			fx2 = 2;
-			sp = ASPACE;
+			sp = LCD_ASPACE;
 		#endif
 		if( num > 0xff ) {
-			// 2バイト文字を使用する場合
+			// 2バイト文字にFONTX2を使用する場合
 			font_height = font[0].fontheight;
 			font_width = font[0].fontwidth;
 			fx2 = 1;
-			sp = KSPACE;
+			sp = LCD_KSPACE;
 		}
 	#else
 		if( num > 0xff ) {
@@ -593,12 +609,12 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 		#ifdef FONTX2_USELED
 			led_on( LED_G );
 		#endif
-		if( i = fontx2_read( fontdata, fx2 - 1, num ) ) {
+		if( ( i = fontx2_read( fontdata, fx2 - 1, num ) ) ) {
 			#ifdef FONTX2_USELED
 				led_off( LED_G );
 				led_on( LED_R );
 			#endif
-			LCD_ShowNum( 120, 60, i, 4, RED );	// エラーコード表示(デバッグ用)
+			// LCD_ShowNum( 120, 60, i, 4, RED );	// エラーコード表示(デバッグ用)
 			return 0;	// エラー(未定義文字)
 		}
 		#ifdef FONTX2_USELED
@@ -700,10 +716,11 @@ uint8_t LCD_ShowChar(u16 x,u16 y,u16 num,u8 mode,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示字符串
-      入口数据：x,y    起点坐标
-                *p     字符串起始地址
-      返回值：  无
+      関数説明：   文字列を表示する(2バイト文字に対応するには USE_UTF8STR を定義)
+      パラメータ： x,y = 表示開始(左上)座標
+                  p = 文字列へのポインタ
+				  color = 描画色
+      戻り値：	   なし
 ******************************************************************************/
 void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 {
@@ -767,10 +784,10 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 
 
 /******************************************************************************
-      関数説明：べき乗の計算
-      パラメータ：m   底
-                n    指数
-      戻り値：  m^n
+      関数説明：   べき乗の計算
+      パラメータ： m = 底
+                  n = 指数
+      戻り値：     m^n
 ******************************************************************************/
 u32 mypow(u8 m,u8 n)
 {
@@ -781,11 +798,12 @@ u32 mypow(u8 m,u8 n)
 
 
 /******************************************************************************
-      関数説明：整数値表示
-      パラメータ：x,y   左上の座標
-                num    表示数値
-                len    文字数
-      戻り値：  なし
+      関数説明：   整数値表示
+      パラメータ： x,y = 表示開始(左上)座標
+                  num = 表示数値
+                  len = 表示文字数
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 {         	
@@ -807,12 +825,14 @@ void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 	}
 } 
 
+
 /******************************************************************************
-      関数説明：16進表示
-      パラメータ：x,y   左上の座標
-                num    表示数値
-                len    文字数
-      戻り値：  なし
+      関数説明：   16進数表示
+      パラメータ： x,y = 表示開始(左上)座標
+                  num = 表示数値
+                  len = 表示文字数
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_ShowHex(u16 x,u16 y,u16 num,u8 len,u16 color)
 {
@@ -833,12 +853,14 @@ void LCD_ShowHex(u16 x,u16 y,u16 num,u8 len,u16 color)
 	}
 }
 
+
 /******************************************************************************
-      関数説明：小数値表示
-      パラメータ：x,y   左上の座標
-                num    表示数値
-                len    文字数
-      戻り値：  なし
+      関数説明：   小数値表示
+      パラメータ： x,y = 表示開始(左上)座標
+                  num = 表示数値
+                  len = 表示文字数
+				  color = 描画色
+      戻り値：     なし
 ******************************************************************************/
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 {         	
@@ -861,9 +883,10 @@ void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示40x40图片
-      入口数据：x,y    起点坐标
-      返回值：  无
+      関数説明：   40x40画像表示(image[]に表示データをセットする)
+      パラメータ： x1,y1 = 左上座標
+				  x2,y2 = 右下座標
+      戻り値：     なし
 ******************************************************************************/
 void LCD_ShowPicture(u16 x1,u16 y1,u16 x2,u16 y2)
 {
@@ -876,6 +899,12 @@ void LCD_ShowPicture(u16 x1,u16 y1,u16 x2,u16 y2)
 	}			
 }
 
+
+/******************************************************************************
+      関数説明：   ロゴマーク表示(bmp.h 内で定義された160x76のイメージを表示)
+      パラメータ： なし
+      戻り値：     なし
+******************************************************************************/
 void LCD_ShowLogo(void)
 {
 	int i;
