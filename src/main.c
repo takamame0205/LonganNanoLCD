@@ -20,7 +20,7 @@ int main( void ) {
     str[8] = 0;
     LCD_ShowString( ankfont_width * 10, 0, str, CYAN );
     LCD_ShowString( 0, FONT_HEIGHT + 1 , "ABCDEabcde012345", CYAN );
-    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "日本語文字列表示", CYAN );
+    LCD_ShowString( 0, ( FONT_HEIGHT + 1 ) * 2, "UTF-8の日本語文字列表示ができます", CYAN );
 
     while( 1 ) {
     }
