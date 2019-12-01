@@ -1,5 +1,5 @@
-// FONTX2ライブラリ Ver 1.0beta2
-// 2019/11/30 by Kyoro
+// FONTX2ライブラリ Ver 1.0beta3
+// 2019/12/1 by Kyoro
 
 #include "lcd/fontx2.h"
 
@@ -55,7 +55,7 @@ uint8_t fontx2_open(	// フォントファイルを開き、ヘッダを読み�
 				fontx2_close( fontnum );
 				return 3;	// コードブロック読み込みエラー
 			}
-			font[fontnum].cb = &cb[sjisnum++];
+			font[fontnum].cb = cb[sjisnum++];
 			fr = f_read( &fontfile[fontnum], font[fontnum].cb, font[fontnum].cbnum * 4, &b );
 			if( fr ) {
 				fontx2_close( fontnum );
